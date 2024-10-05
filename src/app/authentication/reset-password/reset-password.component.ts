@@ -1,55 +1,86 @@
-import { Component } from '@angular/core';
-import { NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-reset-password',
     standalone: true,
-    imports: [RouterLink, NgClass],
+    imports: [CommonModule, ReactiveFormsModule, RouterLink],
     templateUrl: './reset-password.component.html',
-    styleUrl: './reset-password.component.scss'
+    styleUrls: ['./reset-password.component.scss']
 })
-export class ResetPasswordComponent {
-
-    // isToggled
-    isToggled = false;
+export class ResetPasswordComponent implements OnInit {
+    resetForm: FormGroup;
+    token: string;
+    isPassword1Visible = false;
+    isPassword2Visible = false;
+    isPassword3Visible = false;
+    passwordStrength = '';
+    passwordFeedback = '';
 
     constructor(
+        private fb: FormBuilder,
+        private route: ActivatedRoute,
+        private router: Router,
+        private authService: AuthService,
         public themeService: CustomizerSettingsService
     ) {
-        this.themeService.isToggled$.subscribe(isToggled => {
-            this.isToggled = isToggled;
-        });
+        this.resetForm = this.fb.group({
+            newPassword: ['', [Validators.required, Validators.minLength(8)]],
+            confirmPassword: ['', Validators.required]
+        }, { validator: this.passwordMatchValidator });
     }
 
-    // Password Show/Hide
-    password1: string = '';
-    password2: string = '';
-    password3: string = '';
-    isPassword1Visible: boolean = false;
-    isPassword2Visible: boolean = false;
-    isPassword3Visible: boolean = false;
-    togglePassword1Visibility(): void {
+    ngOnInit() {
+        this.token = this.route.snapshot.queryParams['token'];
+        if (!this.token) {
+            this.router.navigate(['/authentication/sign-in']);
+        }
+    }
+
+    passwordMatchValidator(g: FormGroup) {
+        return g.get('newPassword')?.value === g.get('confirmPassword')?.value
+            ? null : {'mismatch': true};
+    }
+
+    onSubmit() {
+        if (this.resetForm.valid) {
+            this.authService.resetPassword(this.token, this.resetForm.get('newPassword')?.value)
+                .subscribe({
+                    next: () => {
+                        // Handle success (e.g., show success message, navigate to login)
+                        this.router.navigate(['/authentication/sign-in']);
+                    },
+                    error: (error) => {
+                        // Handle error (e.g., show error message)
+                        console.error('Password reset failed', error);
+                    }
+                });
+        }
+    }
+
+    togglePassword1Visibility() {
         this.isPassword1Visible = !this.isPassword1Visible;
     }
-    togglePassword2Visibility(): void {
+
+    togglePassword2Visibility() {
         this.isPassword2Visible = !this.isPassword2Visible;
     }
-    togglePassword3Visibility(): void {
+
+    togglePassword3Visibility() {
         this.isPassword3Visible = !this.isPassword3Visible;
     }
-    onPassword1Input(event: Event): void {
-        const inputElement = event.target as HTMLInputElement;
-        this.password1 = inputElement.value;
-    }
-    onPassword2Input(event: Event): void {
-        const inputElement = event.target as HTMLInputElement;
-        this.password2 = inputElement.value;
-    }
-    onPassword3Input(event: Event): void {
-        const inputElement = event.target as HTMLInputElement;
-        this.password3 = inputElement.value;
+
+    onPasswordInput() {
+        const password = this.resetForm.get('newPassword')?.value;
+        this.checkPasswordStrength(password);
     }
 
+    private checkPasswordStrength(password: string) {
+        // Implement password strength check logic here
+        // Update this.passwordStrength and this.passwordFeedback
+    }
 }

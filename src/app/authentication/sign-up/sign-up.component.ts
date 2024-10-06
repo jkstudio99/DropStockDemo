@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { CommonModule, NgClass } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
-import { PasswordStrengthService } from '../../services/password.strength.service';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ValidationService } from '../../services/validation.service';
+import { RegisterModel } from '../../models/RegisterModel';
 
 @Component({
     selector: 'app-sign-up',
@@ -25,6 +24,8 @@ export class SignUpComponent implements OnInit {
     isPasswordVisible: boolean = false;
     passwordStrength: string = '';
     passwordFeedback: string[] = [];
+    errorMessage: string = '';
+    isLoading: boolean = false;
 
     constructor(
         public themeService: CustomizerSettingsService,
@@ -32,7 +33,7 @@ export class SignUpComponent implements OnInit {
         private authService: AuthService,
         private router: Router,
         private route: ActivatedRoute,
-        private passwordStrengthService: PasswordStrengthService,
+        private validationService: ValidationService, // {{ edit_1 }}: Keep this if you need validation
         private cdr: ChangeDetectorRef
     ) {
         this.themeService.isToggled$.subscribe(isToggled => {
@@ -42,9 +43,9 @@ export class SignUpComponent implements OnInit {
 
     ngOnInit() {
         this.signUpForm = this.fb.group({
-            username: ['', Validators.required],
+            username: ['', [Validators.required, this.validationService.usernameValidator()]],
             email: ['', [Validators.required, Validators.email]],
-            password: ['', [Validators.required, Validators.minLength(8)]],
+            password: ['', [Validators.required, this.validationService.passwordValidator()]],
             confirmPassword: ['', Validators.required]
         }, { validator: this.passwordMatchValidator });
     }
@@ -56,15 +57,31 @@ export class SignUpComponent implements OnInit {
 
     onSubmit(): void {
         if (this.signUpForm.valid) {
-            this.authService.register(this.signUpForm.value).subscribe({
-                next: () => {
-                    this.router.navigate(['/authentication/sign-in']);
-                },
-                error: (error) => {
-                    console.error('Registration failed', error);
-                    // Handle registration error (e.g., show error message)
-                }
-            });
+            this.isLoading = true;
+            const registerModel: RegisterModel = {
+                username: this.signUpForm.get('username')?.value,
+                email: this.signUpForm.get('email')?.value,
+                password: this.signUpForm.get('password')?.value
+            };
+            if (this.validateRegisterModel(registerModel)) {
+                this.authService.register(registerModel).subscribe({
+                    next: (response) => {
+                        this.isLoading = false;
+                        if (response.status === 'Success') {
+                            this.router.navigate(['/authentication/sign-in']);
+                        } else {
+                            this.errorMessage = response.message;
+                        }
+                    },
+                    error: (error) => {
+                        this.isLoading = false;
+                        console.error('Registration failed', error);
+                        this.errorMessage = error.error.message || 'Registration failed. Please try again.';
+                    }
+                });
+            } else {
+                this.errorMessage = 'Invalid registration data';
+            }
         }
     }
 
@@ -75,14 +92,43 @@ export class SignUpComponent implements OnInit {
     onPasswordInput(): void {
         const password = this.signUpForm.get('password')?.value;
         if (password) {
-            const result = this.passwordStrengthService.checkStrength(password);
-            this.passwordStrength = result.strength;
-            this.passwordFeedback = result.feedback;
+            const strength = this.checkPasswordStrength(password);
+            this.passwordStrength = strength.strength;
+            this.passwordFeedback = strength.feedback;
         } else {
             this.passwordStrength = '';
             this.passwordFeedback = [];
         }
         this.cdr.detectChanges();
+    }
+
+    private checkPasswordStrength(password: string): { strength: string, feedback: string[] } {
+        const feedback: string[] = [];
+        let strength = 'Weak';
+
+        if (password.length < 8) {
+            feedback.push('Password should be at least 8 characters long.');
+        }
+        if (!/[A-Z]/.test(password)) {
+            feedback.push('Include at least one uppercase letter.');
+        }
+        if (!/[a-z]/.test(password)) {
+            feedback.push('Include at least one lowercase letter.');
+        }
+        if (!/[0-9]/.test(password)) {
+            feedback.push('Include at least one number.');
+        }
+        if (!/[!@#$%^&*]/.test(password)) {
+            feedback.push('Include at least one special character (!@#$%^&*).');
+        }
+
+        if (feedback.length === 0) {
+            strength = 'Strong';
+        } else if (feedback.length <= 2) {
+            strength = 'Medium';
+        }
+
+        return { strength, feedback };
     }
 
     navigateToSignIn() {
@@ -100,4 +146,12 @@ export class SignUpComponent implements OnInit {
         );
     }
     
+    // {{ edit_2 }}: Example method to validate the RegisterModel
+    validateRegisterModel(model: RegisterModel): boolean {
+        const validationResult = this.validationService.validateRegisterModel(model); // Ensure this method exists
+        if (!validationResult.isValid) {
+            return false; // Return false if validation fails
+        }
+        return true; // Return true if validation passes
+    }
 }

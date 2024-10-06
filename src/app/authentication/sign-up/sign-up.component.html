@@ -48,10 +48,19 @@
                         <div class="form-group">
                             <label class="main-label d-block fw-medium text-black">Username</label>
                             <input type="text" formControlName="username" class="form-control" placeholder="Enter your username">
+                            <div *ngIf="signUpForm.get('username')?.touched && signUpForm.get('username')?.invalid" class="error-message">
+                                <div *ngIf="signUpForm.get('username')?.errors?.['required']">Username is required</div>
+                                <div *ngIf="signUpForm.get('username')?.errors?.['minlength']">Username is too short</div>
+                                <div *ngIf="signUpForm.get('username')?.errors?.['maxlength']">Username is too long</div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="main-label d-block fw-medium text-black">Email</label>
                             <input type="email" formControlName="email" class="form-control" placeholder="Enter your email">
+                            <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="error-message">
+                                <div *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required</div>
+                                <div *ngIf="signUpForm.get('email')?.errors?.['email']">Email is not valid</div>
+                            </div>
                         </div>
                         <div class="form-group position-relative">
                             <label class="main-label d-block fw-medium text-black">
@@ -65,6 +74,10 @@
                             <button type="button" (click)="togglePasswordVisibility()" class="icon-button p-0 border-0 bg-transparent transition">
                                 <i [ngClass]="isPasswordVisible ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
                             </button>
+                            <div *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid" class="error-message">
+                                <div *ngIf="signUpForm.get('password')?.errors?.['required']">Password is required</div>
+                                <div *ngIf="signUpForm.get('password')?.errors?.['minlength']">Password is too short</div>
+                            </div>
                         </div>
                         <div *ngIf="passwordStrength" class="password-strength">
                           <div class="strength-meter" [ngClass]="passwordStrength.toLowerCase()"></div>
@@ -73,21 +86,22 @@
                           </div>
                         </div>
                         <div *ngIf="passwordFeedback.length > 0" class="password-feedback">
-                          <div *ngFor="let feedback of passwordFeedback; let i = index" 
-                               class="feedback-item" 
-                               [ngClass]="{'show': true}"
-                               [style.transition-delay]="i * 0.1 + 's'">
+                          <div *ngFor="let feedback of passwordFeedback" class="feedback-item">
                             {{ feedback }}
                           </div>
                         </div>
                         <div class="form-group">
                             <label class="main-label d-block fw-medium text-black">Confirm Password</label>
                             <input type="password" formControlName="confirmPassword" class="form-control" placeholder="Confirm your password">
+                            <div *ngIf="signUpForm.errors?.['mismatch'] && signUpForm.get('confirmPassword')?.touched" class="error-message">
+                                Passwords do not match
+                            </div>
                         </div>
-                        <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius" [disabled]="!signUpForm.valid">
+                        <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius" [disabled]="!signUpForm.valid || isLoading">
                             <span class="d-flex align-items-center justify-content-center">
-                                <i class="material-symbols-outlined">person_add</i>
-                                Sign Up
+                                <i class="material-symbols-outlined" *ngIf="!isLoading">person_add</i>
+                                <i class="material-symbols-outlined rotating" *ngIf="isLoading">autorenew</i>
+                                {{ isLoading ? 'Signing Up...' : 'Sign Up' }}
                             </span>
                         </button>
                         <p class="info mt-3 text-center">

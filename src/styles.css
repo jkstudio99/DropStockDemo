@@ -1,22 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
-  --fontFamily: "Inter", sans-serif;
-  --blackColor: #3A4252;
-  --whiteColor: #ffffff;
-  --bodyColor: #64748B;
-  --borderColor: #ECEEF2;
-  --transition: .5s;
-  --fontSize: 14px;
-  --primaryColor: #001EE0;
-  --secondaryColor: #012657;
-  --successColor: #25B003;
-  --dangerColor: #FF4023;
-  --warningColor: #ffc107;
-  --infoColor: #0dcaf0;
-  --lightColor: #f8f9fa;
-  --darkColor: #212529;
-  --purpleColor: #AD63F6;
-  --orangeColor: #FD5812;
+    --fontFamily: "Inter", sans-serif;
+    --blackColor: #3A4252;
+    --whiteColor: #ffffff;
+    --bodyColor: #64748B;
+    --borderColor: #ECEEF2;
+    --transition: .5s;
+    --fontSize: 14px;
+    --primaryColor: #001EE0;
+    --secondaryColor: #012657;
+    --successColor: #25B003;
+    --dangerColor: #FF4023;
+    --warningColor: #ffc107;
+    --infoColor: #0dcaf0;
+    --lightColor: #f8f9fa;
+    --darkColor: #212529;
+    --purpleColor: #001EE0;
+    --orangeColor: #FD5812;
 }
 
 body {

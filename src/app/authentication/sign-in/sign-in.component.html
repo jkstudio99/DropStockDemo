@@ -44,7 +44,7 @@
                             </button>
                         </div>
                     </div>
-                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                    <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
                         <div class="form-group">
                             <label class="main-label d-block fw-medium text-black">
                                 Username
@@ -67,12 +67,6 @@
                             <a routerLink="/authentication/forgot-password" class="text-primary fw-semibold">
                                 Forgot Password?
                             </a>
-                        </div>
-                        <div *ngIf="passwordStrength" class="password-strength">
-                          <small>ความแข็งแรงของรหัสผ่าน: {{ passwordStrength }}</small>
-                        </div>
-                        <div *ngIf="passwordFeedback.length > 0" class="password-feedback">
-                          <small *ngFor="let feedback of passwordFeedback" class="d-block text-danger">{{ feedback }}</small>
                         </div>
                         <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius">
                             <span class="d-flex align-items-center justify-content-center">

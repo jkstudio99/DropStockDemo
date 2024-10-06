@@ -23,11 +23,14 @@
                         <h1 class="fw-semibold">
                             Welcome back to Trezo!
                         </h1>
-                        <p class="fw-medium">
+                        <p class="fw-medium" *ngIf="confirmationSuccess">
                             Your mail is verified! Your account is now safe from unwanted activities.
                         </p>
+                        <p class="fw-medium text-danger" *ngIf="errorMessage">
+                            {{ errorMessage }}
+                        </p>
                     </div>
-                    <div class="admin">
+                    <div class="admin" *ngIf="confirmationSuccess">
                         <div class="logo d-flex align-items-center justify-content-center bg-gray text-success rounded-circle">
                             <i class="material-symbols-outlined">
                                 done
@@ -37,14 +40,14 @@
                             Your Email Verified <span class="text-success">Successfully!</span>
                         </span>
                     </div>
-                    <a routerLink="/dashboard" class="btn-box d-block w-100 border-0 transition fw-medium border-radius">
+                    <button (click)="navigateToDashboard()" class="btn-box d-block w-100 border-0 transition fw-medium border-radius">
                         <span class="d-flex align-items-center justify-content-center">
                             <i class="material-symbols-outlined">
                                 login
                             </i>
                             Back To Home
                         </span>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>

@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-forgot-password',
@@ -14,6 +15,9 @@ import { AuthService } from '../../services/auth.service';
 export class ForgotPasswordComponent implements OnInit {
     isToggled = false;
     forgotPasswordForm: FormGroup;
+    isLoading: boolean = false;
+    errorMessage: string = '';
+    successMessage: string = '';
 
     constructor(
         public themeService: CustomizerSettingsService,
@@ -33,13 +37,18 @@ export class ForgotPasswordComponent implements OnInit {
 
     onSubmit(): void {
         if (this.forgotPasswordForm.valid) {
+            this.isLoading = true;
+            this.errorMessage = '';
+            this.successMessage = '';
             this.authService.forgotPassword(this.forgotPasswordForm.get('email')?.value).subscribe({
-                next: () => {
-                    // Show success message
+                next: (response) => {
+                    this.isLoading = false;
+                    this.successMessage = 'Password reset link sent. Please check your email.';
                 },
-                error: (error) => {
+                error: (error: HttpErrorResponse) => {
+                    this.isLoading = false;
                     console.error('Forgot password request failed', error);
-                    // Handle error (e.g., show error message)
+                    this.errorMessage = error.error?.message || 'Failed to send reset link. Please try again.';
                 }
             });
         }

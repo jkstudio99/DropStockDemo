@@ -4,6 +4,7 @@ import { CustomizerSettingsService } from '../../customizer-settings/customizer-
 import { CommonModule, NgClass } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ValidationService } from '../../services/validation.service';
 
 @Component({
     selector: 'app-sign-in',
@@ -18,12 +19,14 @@ export class SignInComponent implements OnInit {
     signInForm: FormGroup;
     isPasswordVisible: boolean = false;
     errorMessage: string = '';
+    passwordErrors: string[] = [];
 
     constructor(
         public themeService: CustomizerSettingsService,
         private fb: FormBuilder,
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private validationService: ValidationService
     ) {
         this.themeService.isToggled$.subscribe(isToggled => {
             this.isToggled = isToggled;
@@ -33,8 +36,17 @@ export class SignInComponent implements OnInit {
     ngOnInit() {
         this.signInForm = this.fb.group({
             username: ['', Validators.required],
-            password: ['', Validators.required]
+            password: ['', [Validators.required, this.validationService.passwordValidator()]]
         });
+
+        this.signInForm.get('password')?.valueChanges.subscribe(() => {
+            this.validatePassword();
+        });
+    }
+
+    validatePassword() {
+        const password = this.signInForm.get('password')?.value;
+        this.passwordErrors = this.validationService.validatePassword(password);
     }
 
     onSubmit(): void {
@@ -55,6 +67,8 @@ export class SignInComponent implements OnInit {
                     this.errorMessage = error.error.message || 'Invalid username or password';
                 }
             });
+        } else {
+            this.validatePassword();
         }
     }
 

@@ -63,6 +63,11 @@
                                 <i [ngClass]="isPasswordVisible ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
                             </button>
                         </div>
+                        <div *ngIf="passwordErrors.length > 0" class="text-danger mt-2">
+                            <ul>
+                                <li *ngFor="let error of passwordErrors">{{ error }}</li>
+                            </ul>
+                        </div>
                         <div class="forgot-password mt-2 mb-3">
                             <a routerLink="/authentication/forgot-password" class="text-primary fw-semibold">
                                 Forgot Password?

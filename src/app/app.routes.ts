@@ -494,6 +494,7 @@ export const routes: Routes = [
         component: AuthenticationComponent,
         children: [
             {path: '', component: SignInComponent},
+            {path: 'sign-in', component: SignInComponent},
             {path: 'sign-up', component: SignUpComponent},
             {path: 'forgot-password', component: ForgotPasswordComponent},
             {path: 'reset-password', component: ResetPasswordComponent},

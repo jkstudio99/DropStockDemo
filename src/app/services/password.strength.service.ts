@@ -4,9 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class PasswordStrengthService {
-  checkStrength(password: string): { strength: string, feedback: string } {
+  checkStrength(password: string): { strength: string, feedback: string[] } {
     let score = 0;
-    let feedback = [];
+    let feedback: string[] = [];
 
     if (password.length >= 8) score += 1;
     if (password.length >= 12) score += 1;
@@ -31,7 +31,7 @@ export class PasswordStrengthService {
       feedback.push('ควรมีอักขระพิเศษอย่างน้อย 1 ตัว');
     }
 
-    let strength;
+    let strength: string;
     switch (score) {
       case 0:
       case 1:
@@ -50,8 +50,10 @@ export class PasswordStrengthService {
       case 6:
         strength = 'แข็งแรงมาก';
         break;
+      default:
+        strength = 'อ่อน';
     }
 
-    return { strength, feedback: feedback.join(', ') || '' };
+    return { strength, feedback };
   }
 }

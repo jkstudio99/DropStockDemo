@@ -5,6 +5,8 @@ import { NgClass } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { LoginModel } from '../../models/LoginModel';
+import { PasswordStrengthService } from '../../services/password.strength.service';
+import { ValidationService } from '../../services/validation.service';
 
 @Component({
     selector: 'app-sign-in',
@@ -18,12 +20,15 @@ export class SignInComponent implements OnInit {
     loginForm: FormGroup;
     isPasswordVisible: boolean = false;
     passwordStrength: string = '';
+    passwordFeedback: string[] = [];
 
     constructor(
         public themeService: CustomizerSettingsService,
         private authService: AuthService,
         private router: Router,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private passwordStrengthService: PasswordStrengthService,
+        private validationService: ValidationService
     ) {
         this.themeService.isToggled$.subscribe(isToggled => {
             this.isToggled = isToggled;
@@ -33,7 +38,11 @@ export class SignInComponent implements OnInit {
     ngOnInit() {
         this.loginForm = this.fb.group({
             username: ['', [Validators.required]],
-            password: ['', [Validators.required, Validators.minLength(8)]]
+            password: ['', [Validators.required, this.validationService.passwordValidator()]]
+        });
+
+        this.loginForm.get('password')?.valueChanges.subscribe(() => {
+            this.onPasswordInput();
         });
     }
 
@@ -61,23 +70,13 @@ export class SignInComponent implements OnInit {
 
     onPasswordInput(): void {
         const password = this.loginForm.get('password')?.value;
-        this.checkPasswordStrength(password);
-    }
-
-    private checkPasswordStrength(password: string): void {
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumbers = /\d/.test(password);
-        const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-        if (password.length < 8) {
-            this.passwordStrength = 'อ่อน';
-        } else if (hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars) {
-            this.passwordStrength = 'แข็งแรงมาก';
-        } else if ((hasUpperCase || hasLowerCase) && hasNumbers) {
-            this.passwordStrength = 'ปานกลาง';
+        if (password) {
+            const result = this.passwordStrengthService.checkStrength(password);
+            this.passwordStrength = result.strength;
+            this.passwordFeedback = result.feedback;
         } else {
-            this.passwordStrength = 'อ่อน';
+            this.passwordStrength = '';
+            this.passwordFeedback = [];
         }
     }
 }

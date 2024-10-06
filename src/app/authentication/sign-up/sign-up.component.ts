@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
-import { NgClass } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { PasswordStrengthService } from '../../services/password.strength.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-sign-up',
     standalone: true,
-    imports: [RouterLink, NgClass, ReactiveFormsModule],
+    imports: [RouterLink, NgClass, ReactiveFormsModule, CommonModule],
     templateUrl: './sign-up.component.html',
     styleUrl: './sign-up.component.scss'
 })
@@ -21,12 +24,16 @@ export class SignUpComponent implements OnInit {
     signUpForm: FormGroup;
     isPasswordVisible: boolean = false;
     passwordStrength: string = '';
+    passwordFeedback: string[] = [];
 
     constructor(
         public themeService: CustomizerSettingsService,
         private fb: FormBuilder,
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute,
+        private passwordStrengthService: PasswordStrengthService,
+        private cdr: ChangeDetectorRef
     ) {
         this.themeService.isToggled$.subscribe(isToggled => {
             this.isToggled = isToggled;
@@ -67,10 +74,30 @@ export class SignUpComponent implements OnInit {
 
     onPasswordInput(): void {
         const password = this.signUpForm.get('password')?.value;
-        this.checkPasswordStrength(password);
+        if (password) {
+            const result = this.passwordStrengthService.checkStrength(password);
+            this.passwordStrength = result.strength;
+            this.passwordFeedback = result.feedback;
+        } else {
+            this.passwordStrength = '';
+            this.passwordFeedback = [];
+        }
+        this.cdr.detectChanges();
     }
 
-    private checkPasswordStrength(password: string): void {
-        // Implement the same logic as in SignInComponent
+    navigateToSignIn() {
+        this.router.navigate(['/authentication/sign-in']).then(
+            (navigationSuccess) => {
+                if (navigationSuccess) {
+                    console.log('Navigation successful');
+                } else {
+                    console.log('Navigation failed');
+                }
+            },
+            (error) => {
+                console.log('Navigation error:', error);
+            }
+        );
     }
+    
 }

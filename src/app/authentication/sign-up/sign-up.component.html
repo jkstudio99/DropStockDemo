@@ -21,7 +21,7 @@
                     </div>
                     <div class="title">
                         <h1 class="fw-semibold">
-                            Sign up to Trezo Dashboard
+                            Sign up to DropStock Dashboard
                         </h1>
                         <p class="fw-medium">
                             Sign up with social account or enter your details
@@ -53,12 +53,32 @@
                             <label class="main-label d-block fw-medium text-black">Email</label>
                             <input type="email" formControlName="email" class="form-control" placeholder="Enter your email">
                         </div>
-                        <div class="form-group">
-                            <label class="main-label d-block fw-medium text-black">Password</label>
-                            <input [type]="isPasswordVisible ? 'text' : 'password'" formControlName="password" class="form-control" placeholder="Enter your password">
-                            <button type="button" (click)="togglePasswordVisibility()" class="password-show-hide">
-                                <i class="material-symbols-outlined">{{ isPasswordVisible ? 'visibility_off' : 'visibility' }}</i>
+                        <div class="form-group position-relative">
+                            <label class="main-label d-block fw-medium text-black">
+                                Password
+                            </label>
+                            <input [type]="isPasswordVisible ? 'text' : 'password'" 
+                                   formControlName="password" 
+                                   class="form-control" 
+                                   placeholder="Enter your password"
+                                   (input)="onPasswordInput()">
+                            <button type="button" (click)="togglePasswordVisibility()" class="icon-button p-0 border-0 bg-transparent transition">
+                                <i [ngClass]="isPasswordVisible ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
                             </button>
+                        </div>
+                        <div *ngIf="passwordStrength" class="password-strength">
+                          <div class="strength-meter" [ngClass]="passwordStrength.toLowerCase()"></div>
+                          <div class="strength-text" [ngClass]="passwordStrength.toLowerCase()">
+                            Password strength: {{ passwordStrength }}
+                          </div>
+                        </div>
+                        <div *ngIf="passwordFeedback.length > 0" class="password-feedback">
+                          <div *ngFor="let feedback of passwordFeedback; let i = index" 
+                               class="feedback-item" 
+                               [ngClass]="{'show': true}"
+                               [style.transition-delay]="i * 0.1 + 's'">
+                            {{ feedback }}
+                          </div>
                         </div>
                         <div class="form-group">
                             <label class="main-label d-block fw-medium text-black">Confirm Password</label>
@@ -70,6 +90,9 @@
                                 Sign Up
                             </span>
                         </button>
+                        <p class="info mt-3 text-center">
+                            Already have an account? <a (click)="navigateToSignIn()" class="fw-semibold text-primary">Sign In</a>
+                        </p>
                     </form>
                 </div>
             </div>

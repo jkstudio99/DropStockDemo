@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { CommonModule } from '@angular/common';
+import { PasswordStrengthService } from '../../services/password.strength.service';
+import { ValidationService } from '../../services/validation.service';
 
 @Component({
     selector: 'app-reset-password',
@@ -19,19 +21,25 @@ export class ResetPasswordComponent implements OnInit {
     isPassword2Visible = false;
     isPassword3Visible = false;
     passwordStrength = '';
-    passwordFeedback = '';
+    passwordFeedback: string[] = [];
 
     constructor(
         private fb: FormBuilder,
         private route: ActivatedRoute,
         private router: Router,
         private authService: AuthService,
-        public themeService: CustomizerSettingsService
+        public themeService: CustomizerSettingsService,
+        private passwordStrengthService: PasswordStrengthService,
+        private validationService: ValidationService
     ) {
         this.resetForm = this.fb.group({
-            newPassword: ['', [Validators.required, Validators.minLength(8)]],
+            newPassword: ['', [Validators.required, this.validationService.passwordValidator()]],
             confirmPassword: ['', Validators.required]
         }, { validator: this.passwordMatchValidator });
+
+        this.resetForm.get('newPassword')?.valueChanges.subscribe(() => {
+            this.onPasswordInput();
+        });
     }
 
     ngOnInit() {
@@ -76,11 +84,13 @@ export class ResetPasswordComponent implements OnInit {
 
     onPasswordInput() {
         const password = this.resetForm.get('newPassword')?.value;
-        this.checkPasswordStrength(password);
-    }
-
-    private checkPasswordStrength(password: string) {
-        // Implement password strength check logic here
-        // Update this.passwordStrength and this.passwordFeedback
+        if (password) {
+            const result = this.passwordStrengthService.checkStrength(password);
+            this.passwordStrength = result.strength;
+            this.passwordFeedback = result.feedback;
+        } else {
+            this.passwordStrength = '';
+            this.passwordFeedback = [];
+        }
     }
 }

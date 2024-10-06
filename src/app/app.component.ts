@@ -11,7 +11,7 @@ import { RouterOutlet, Router, Event, NavigationEnd } from '@angular/router';
 })
 export class AppComponent {
 
-    title = 'Trezo - Angular 18 Bootstrap Admin Dashboard Template';
+    title = 'DropStock - Simplifying Inventory,One Drop at a Time.';
 
     constructor(
         private router: Router,

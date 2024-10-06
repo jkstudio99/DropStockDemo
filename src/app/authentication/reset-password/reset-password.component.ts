@@ -1,115 +1,97 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
-import { ValidationService } from '../../services/validation.service';
+import { CommonModule } from '@angular/common'; // Import for ngClass and other common directives
 
 @Component({
-    selector: 'app-reset-password',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterLink],
-    templateUrl: './reset-password.component.html',
-    styleUrls: ['./reset-password.component.scss']
+  selector: 'app-reset-password',
+  standalone: true, // Standalone component
+  imports: [CommonModule, ReactiveFormsModule], // Import CommonModule and ReactiveFormsModule here
+  templateUrl: './reset-password.component.html',
+  styleUrls: ['./reset-password.component.scss']
 })
 export class ResetPasswordComponent implements OnInit {
-    resetForm: FormGroup;
-    token: string;
-    email: string;
-    isPassword2Visible: boolean = false;
-    isPassword3Visible: boolean = false;
-    passwordStrength: string = '';
-    passwordFeedback: string[] = [];
-    isLoading: boolean = false;
-    errorMessage: string = '';
+  resetForm: FormGroup;
+  isPassword1Visible: boolean = false;
+  isPassword2Visible: boolean = false;
+  isPassword3Visible: boolean = false;
+  password1: string = '';
+  password2: string = '';
+  password3: string = '';
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-    constructor(
-        private fb: FormBuilder,
-        private route: ActivatedRoute,
-        private router: Router,
-        private authService: AuthService,
-        public themeService: CustomizerSettingsService,
-        private validationService: ValidationService
-    ) {
-        this.resetForm = this.fb.group({
-            newPassword: ['', [Validators.required, this.validationService.passwordValidator()]],
-            confirmPassword: ['', Validators.required]
-        }, { validator: this.passwordMatchValidator });
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService,
+    public themeService: CustomizerSettingsService // For theme handling
+  ) {}
+
+  ngOnInit() {
+    this.resetForm = this.fb.group({
+      oldPassword: ['', [Validators.required]],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required]
+    }, { validator: this.passwordMatchValidator });
+
+    // Retrieve token and other necessary parameters from the URL query string
+    const token = this.route.snapshot.queryParams['token'];
+    // If needed, you can store the token for further use
+  }
+
+  passwordMatchValidator(g: FormGroup) {
+    return g.get('newPassword')?.value === g.get('confirmPassword')?.value
+      ? null : { 'mismatch': true };
+  }
+
+  onPassword1Input(event: Event) {
+    this.password1 = (event.target as HTMLInputElement).value;
+  }
+
+  onPassword2Input(event: Event) {
+    this.password2 = (event.target as HTMLInputElement).value;
+  }
+
+  onPassword3Input(event: Event) {
+    this.password3 = (event.target as HTMLInputElement).value;
+  }
+
+  togglePassword1Visibility() {
+    this.isPassword1Visible = !this.isPassword1Visible;
+  }
+
+  togglePassword2Visibility() {
+    this.isPassword2Visible = !this.isPassword2Visible;
+  }
+
+  togglePassword3Visibility() {
+    this.isPassword3Visible = !this.isPassword3Visible;
+  }
+
+  onSubmit() {
+    if (this.resetForm.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
+
+      const oldPassword = this.resetForm.get('oldPassword')?.value;
+      const newPassword = this.resetForm.get('newPassword')?.value;
+
+      // Call AuthService to reset the password
+      this.authService.resetPassword(oldPassword, newPassword, this.route.snapshot.queryParams['token'])
+        .subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.router.navigate(['/authentication/sign-in'], { queryParams: { resetSuccess: true } });
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.errorMessage = error?.error?.message || 'Password reset failed. Please try again.';
+          }
+        });
     }
-
-    ngOnInit() {
-        this.token = this.route.snapshot.queryParams['token'];
-        this.email = this.route.snapshot.queryParams['email'];
-    }
-
-    passwordMatchValidator(g: FormGroup) {
-        return g.get('newPassword')?.value === g.get('confirmPassword')?.value
-            ? null : {'mismatch': true};
-    }
-
-    onSubmit() {
-        if (this.resetForm.valid) {
-            this.isLoading = true;
-            this.errorMessage = '';
-            this.authService.resetPassword(this.email, this.token, this.resetForm.get('newPassword')?.value)
-                .subscribe({
-                    next: () => {
-                        this.isLoading = false;
-                        this.router.navigate(['/authentication/sign-in']);
-                    },
-                    error: (error) => {
-                        this.isLoading = false;
-                        console.error('Password reset failed', error);
-                        this.errorMessage = error.error?.message || 'Password reset failed. Please try again.';
-                    }
-                });
-        }
-    }
-
-    togglePassword2Visibility() {
-        this.isPassword2Visible = !this.isPassword2Visible;
-    }
-
-    togglePassword3Visibility() {
-        this.isPassword3Visible = !this.isPassword3Visible;
-    }
-
-    onPasswordInput() {
-        const password = this.resetForm.get('newPassword')?.value;
-        if (password) {
-            this.checkPasswordStrength(password);
-        } else {
-            this.passwordStrength = '';
-            this.passwordFeedback = [];
-        }
-    }
-
-    private checkPasswordStrength(password: string) {
-        this.passwordFeedback = [];
-        
-        if (password.length < 8) {
-            this.passwordFeedback.push('Password should be at least 8 characters long.');
-        }
-        if (!/[A-Z]/.test(password)) {
-            this.passwordFeedback.push('Include at least one uppercase letter.');
-        }
-        if (!/[a-z]/.test(password)) {
-            this.passwordFeedback.push('Include at least one lowercase letter.');
-        }
-        if (!/[0-9]/.test(password)) {
-            this.passwordFeedback.push('Include at least one number.');
-        }
-        if (!/[!@#$%^&*]/.test(password)) {
-            this.passwordFeedback.push('Include at least one special character (!@#$%^&*).');
-        }
-
-        if (this.passwordFeedback.length === 0) {
-            this.passwordStrength = 'Strong';
-        } else if (this.passwordFeedback.length <= 2) {
-            this.passwordStrength = 'Medium';
-        } else {
-            this.passwordStrength = 'Weak';
-        }
-    }
+  }
 }

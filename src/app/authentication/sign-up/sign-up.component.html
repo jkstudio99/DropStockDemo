@@ -1,115 +1,72 @@
-<div
-    class="sign-up-area"
-    [class.dark-theme]="themeService.isDark()"
->
-    <div
-        class="trezo-form mx-auto"
-        [class.component-dark-theme]="themeService.isDark()"
-        [class.component-rtl-enabled]="themeService.isRTLEnabled()"
-    >
-        <div class="row align-items-center">
-            <div class="col-lg-6 col-md-12 order-2 order-lg-1">
-                <div class="form-image">
-                    <img src="images/sign-up.jpg" alt="sign-up-image">
-                </div>
-            </div>
-            <div class="col-lg-6 col-md-12 order-1 order-lg-2">
-                <div class="form-content">
-                    <div class="logo">
-                        <img src="images/logo-big.svg" alt="logo">
-                        <img src="images/white-logo-big.svg" class="d-none" alt="logo">
-                    </div>
-                    <div class="title">
-                        <h1 class="fw-semibold">
-                            Sign up to DropStock Dashboard
-                        </h1>
-                        <p class="fw-medium">
-                            Sign up with social account or enter your details
-                        </p>
-                    </div>
-                    <div class="with-socials d-flex align-items-center justify-content-between">
-                        <div>
-                            <button type="button" class="d-block w-100 border-radius transition">
-                                <img src="images/icons/google.svg" alt="google">
-                            </button>
-                        </div>
-                        <div>
-                            <button type="button" class="d-block w-100 border-radius transition">
-                                <img src="images/icons/facebook2.svg" alt="facebook">
-                            </button>
-                        </div>
-                        <div>
-                            <button type="button" class="d-block w-100 border-radius transition">
-                                <img src="images/icons/apple.svg" alt="apple">
-                            </button>
-                        </div>
-                    </div>
-                    <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
-                        <div class="form-group">
-                            <label class="main-label d-block fw-medium text-black">Username</label>
-                            <input type="text" formControlName="username" class="form-control" placeholder="Enter your username">
-                            <div *ngIf="signUpForm.get('username')?.touched && signUpForm.get('username')?.invalid" class="error-message">
-                                <div *ngIf="signUpForm.get('username')?.errors?.['required']">Username is required</div>
-                                <div *ngIf="signUpForm.get('username')?.errors?.['minlength']">Username is too short</div>
-                                <div *ngIf="signUpForm.get('username')?.errors?.['maxlength']">Username is too long</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="main-label d-block fw-medium text-black">Email</label>
-                            <input type="email" formControlName="email" class="form-control" placeholder="Enter your email">
-                            <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="error-message">
-                                <div *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required</div>
-                                <div *ngIf="signUpForm.get('email')?.errors?.['email']">Email is not valid</div>
-                            </div>
-                        </div>
-                        <div class="form-group position-relative">
-                            <label class="main-label d-block fw-medium text-black">
-                                Password
-                            </label>
-                            <input [type]="isPasswordVisible ? 'text' : 'password'" 
-                                   formControlName="password" 
-                                   class="form-control" 
-                                   placeholder="Enter your password"
-                                   (input)="onPasswordInput()">
-                            <button type="button" (click)="togglePasswordVisibility()" class="icon-button p-0 border-0 bg-transparent transition">
-                                <i [ngClass]="isPasswordVisible ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
-                            </button>
-                            <div *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid" class="error-message">
-                                <div *ngIf="signUpForm.get('password')?.errors?.['required']">Password is required</div>
-                                <div *ngIf="signUpForm.get('password')?.errors?.['minlength']">Password is too short</div>
-                            </div>
-                        </div>
-                        <div *ngIf="passwordStrength" class="password-strength">
-                          <div class="strength-meter" [ngClass]="passwordStrength.toLowerCase()"></div>
-                          <div class="strength-text" [ngClass]="passwordStrength.toLowerCase()">
-                            Password strength: {{ passwordStrength }}
-                          </div>
-                        </div>
-                        <div *ngIf="passwordFeedback.length > 0" class="password-feedback">
-                          <div *ngFor="let feedback of passwordFeedback" class="feedback-item">
-                            {{ feedback }}
-                          </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="main-label d-block fw-medium text-black">Confirm Password</label>
-                            <input type="password" formControlName="confirmPassword" class="form-control" placeholder="Confirm your password">
-                            <div *ngIf="signUpForm.errors?.['mismatch'] && signUpForm.get('confirmPassword')?.touched" class="error-message">
-                                Passwords do not match
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius" [disabled]="!signUpForm.valid || isLoading">
-                            <span class="d-flex align-items-center justify-content-center">
-                                <i class="material-symbols-outlined" *ngIf="!isLoading">person_add</i>
-                                <i class="material-symbols-outlined rotating" *ngIf="isLoading">autorenew</i>
-                                {{ isLoading ? 'Signing Up...' : 'Sign Up' }}
-                            </span>
-                        </button>
-                        <p class="info mt-3 text-center">
-                            Already have an account? <a (click)="navigateToSignIn()" class="fw-semibold text-primary">Sign In</a>
-                        </p>
-                    </form>
-                </div>
-            </div>
+<div class="sign-up-area" [class.dark-theme]="themeService.isDark()">
+    <div class="trezo-form mx-auto" [class.component-dark-theme]="themeService.isDark()" [class.component-rtl-enabled]="themeService.isRTLEnabled()">
+      <div class="row align-items-center">
+        <div class="col-lg-6 col-md-12 order-2 order-lg-1">
+          <div class="form-image">
+            <img src="images/sign-up.jpg" alt="sign-up-image">
+          </div>
         </div>
+        <div class="col-lg-6 col-md-12 order-1 order-lg-2">
+          <div class="form-content">
+            <div class="logo">
+              <img src="images/logo-big.svg" alt="logo">
+              <img src="images/white-logo-big.svg" class="d-none" alt="logo">
+            </div>
+            <div class="title">
+              <h1 class="fw-semibold">Sign up to DropStock Dashboard</h1>
+              <p class="fw-medium">Sign up with a social account or enter your details</p>
+            </div>
+            <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+              <div class="form-group">
+                <label class="main-label d-block fw-medium text-black">Username</label>
+                <input type="text" formControlName="username" class="form-control" placeholder="Enter your username">
+                <div *ngIf="signUpForm.get('username')?.touched && signUpForm.get('username')?.invalid" class="error-message">
+                  <div *ngIf="signUpForm.get('username')?.errors?.['required']">Username is required</div>
+                  <div *ngIf="signUpForm.get('username')?.errors?.['minlength']">Username is too short</div>
+                  <div *ngIf="signUpForm.get('username')?.errors?.['maxlength']">Username is too long</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="main-label d-block fw-medium text-black">Email</label>
+                <input type="email" formControlName="email" class="form-control" placeholder="Enter your email">
+                <div *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid" class="error-message">
+                  <div *ngIf="signUpForm.get('email')?.errors?.['required']">Email is required</div>
+                  <div *ngIf="signUpForm.get('email')?.errors?.['email']">Email is not valid</div>
+                </div>
+              </div>
+              <div class="form-group position-relative">
+                <label class="main-label d-block fw-medium text-black">Password</label>
+                <input [type]="isPasswordVisible ? 'text' : 'password'" formControlName="password" class="form-control" placeholder="Enter your password">
+                <button type="button" (click)="togglePasswordVisibility()" class="icon-button p-0 border-0 bg-transparent">
+                  <i [ngClass]="isPasswordVisible ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
+                </button>
+              </div>
+              <div *ngIf="passwordErrors.length > 0" class="text-danger mt-2">
+                <ul>
+                  <li *ngFor="let error of passwordErrors">{{ error }}</li>
+                </ul>
+              </div>
+              <div class="form-group">
+                <label class="main-label d-block fw-medium text-black">Confirm Password</label>
+                <input type="password" formControlName="confirmPassword" class="form-control" placeholder="Confirm your password">
+                <div *ngIf="signUpForm.errors?.['mismatch'] && signUpForm.get('confirmPassword')?.touched" class="error-message">
+                  Passwords do not match
+                </div>
+              </div>
+              <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius" [disabled]="!signUpForm.valid || isLoading">
+                <span class="d-flex align-items-center justify-content-center">
+                  <i class="material-symbols-outlined" *ngIf="!isLoading">person_add</i>
+                  <i class="material-symbols-outlined rotating" *ngIf="isLoading">autorenew</i>
+                  {{ isLoading ? 'Signing Up...' : 'Sign Up' }}
+                </span>
+              </button>
+              <p class="info mt-3 text-center">
+                Already have an account? <a (click)="navigateToSignIn()" class="fw-semibold text-primary">Sign In</a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+  

@@ -83,7 +83,7 @@
   padding-top: 9px;
 }
 .sidebar-area .sidebar-inner .sidebar-menu .accordion .accordion-item .accordion-button i {
-  transition: var(--transition);
+  transition: 5s;
   transform: translateY(-50%);
   color: var(--bodyColor);
   position: absolute;
@@ -123,7 +123,7 @@
   position: absolute;
   color: var(--bodyColor);
   transform: translateY(-50%);
-  transition: var(--transition);
+  transition: 5s;
   font-size: 19px;
   font-family: remixicon;
 }
@@ -283,7 +283,7 @@
   padding-left: 40px;
 }
 .sidebar-area .sidebar-inner .sidebar-menu .accordion .sidebar-menu-link i {
-  transition: var(--transition);
+  transition: 5s;
   transform: translateY(-50%);
   color: var(--bodyColor);
   position: absolute;

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgScrollbarModule } from 'ngx-scrollbar';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLinkActive, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { ToggleService } from '../header/toggle.service';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';

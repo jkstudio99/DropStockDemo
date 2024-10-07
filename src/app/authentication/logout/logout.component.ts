@@ -3,7 +3,7 @@ import { RouterLink, Router } from '@angular/router';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { AuthService } from '../../services/auth.service';
 import { tap, catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { throwError, from } from 'rxjs';
 
 @Component({
     selector: 'app-logout',
@@ -26,18 +26,32 @@ export class LogoutComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.authService.logout().pipe(
-            tap(() => this.router.navigate(['/authentication/sign-in'])),
+        from(Promise.resolve(this.authService.logout())).pipe(
+            tap(() => {
+                // Successfully logged out
+                this.router.navigate(['/authentication/sign-in']);
+            }),
             catchError(error => {
                 console.error('Logout failed', error);
-                // Handle logout error if necessary
+                // Handle logout error
+                this.handleLogoutError(error);
                 return throwError(() => error);
             })
         ).subscribe({
-            error: (err) => {
+            error: (err: unknown) => {
                 console.error('Unhandled logout error', err);
-                // Additional error handling if needed
+                // This should not be reached due to catchError above,
+                this.handleLogoutError(err);
             }
         });
+    }
+
+    private handleLogoutError(error: any): void {
+        // Implement error handling logic here
+        // For example, show an error message to the user
+        // and/or redirect to an error page
+        console.error('Error during logout:', error);
+        // TODO: Add user-facing error notification
+        this.router.navigate(['/error-page']);
     }
 }

@@ -94,7 +94,7 @@
                             top: 9px;
                         };
                         i {
-                            transition: var(--transition);
+                            transition: 5s;
                             transform: translateY(-50%);
                             color: var(--bodyColor);
                             position: absolute;
@@ -135,7 +135,7 @@
                             position: absolute;
                             color: var(--bodyColor);
                             transform: translateY(-50%);
-                            transition: var(--transition);
+                            transition: 5s;
                             font: {
                                 size: 19px;
                                 family: remixicon;
@@ -170,7 +170,17 @@
                         }
                     }
                     .accordion-collapse {
-                        display: none;
+                        max-height: 0;
+                        opacity: 0;
+                        overflow: hidden;
+                        visibility: hidden;
+                        transition: max-height 0.5s ease-out, opacity 0.5s ease-out, visibility 0.5s ease-out;
+                    
+                        &.open {
+                            max-height: 1000px; // Adjust this value based on your content
+                            opacity: 1;
+                            visibility: visible;
+                        }
 
                         .accordion-body {
                             padding: 4px 0 0;
@@ -323,7 +333,7 @@
                         left: 40px;
                     };
                     i {
-                        transition: var(--transition);
+                        transition: 5s;
                         transform: translateY(-50%);
                         color: var(--bodyColor);
                         position: absolute;

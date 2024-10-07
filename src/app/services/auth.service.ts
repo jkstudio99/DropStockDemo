@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, Observable, tap, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { RegisterModel } from '../models/RegisterModel';
 import { LoginModel } from '../models/LoginModel';
@@ -10,9 +11,12 @@ import { TokenResponse } from '../models/jwt-model/Response/TokenResponse';
   providedIn: 'root'
 })
 export class AuthService {
+  private loggedIn = new BehaviorSubject<boolean>(false);
   private apiUrl = environment.BaseAPIUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.loggedIn.next(!!localStorage.getItem('token'));
+  }
 
   register(registerModel: RegisterModel): Observable<any> {
     return this.http.post(`${this.apiUrl}/authentication/register-user`, registerModel).pipe(
@@ -37,14 +41,11 @@ export class AuthService {
     );
   }
 
-  logout(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/authentication/logout`, {}).pipe(
-      tap(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('userData');
-      })
-    );
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userData');
+    this.loggedIn.next(false);
   }
 
   refreshToken(): Observable<any> {
@@ -56,9 +57,8 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/authentication/validate-token`, { token });
   }
 
-  isLoggedIn(): boolean {
-    const token = localStorage.getItem('token');
-    return !!token;
+  isLoggedIn(): Observable<boolean> {
+    return this.loggedIn.asObservable();
   }
 
   forgotPassword(email: string): Observable<any> {
@@ -74,8 +74,6 @@ export class AuthService {
       );
   }
   
-  
-
   confirmEmail(token: string, email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/authentication/confirm-email`, { token, email });
   }

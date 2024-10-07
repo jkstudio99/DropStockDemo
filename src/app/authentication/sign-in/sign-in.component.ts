@@ -20,6 +20,7 @@ export class SignInComponent implements OnInit {
     isPasswordVisible: boolean = false;
     errorMessage: string = '';
     passwordErrors: string[] = [];
+    passwordsDoNotMatch: boolean = false;
 
     constructor(
         public themeService: CustomizerSettingsService,
@@ -36,17 +37,29 @@ export class SignInComponent implements OnInit {
     ngOnInit() {
         this.signInForm = this.fb.group({
             username: ['', Validators.required],
-            password: ['', [Validators.required, this.validationService.passwordValidator()]]
+            password: ['', [Validators.required, this.validationService.passwordValidator()]],
+            confirmPassword: ['', Validators.required]
         });
 
         this.signInForm.get('password')?.valueChanges.subscribe(() => {
             this.validatePassword();
+            this.checkPasswordsMatch();
+        });
+
+        this.signInForm.get('confirmPassword')?.valueChanges.subscribe(() => {
+            this.checkPasswordsMatch();
         });
     }
 
     validatePassword() {
         const password = this.signInForm.get('password')?.value;
         this.passwordErrors = this.validationService.validatePassword(password);
+    }
+
+    checkPasswordsMatch() {
+        const password = this.signInForm.get('password')?.value;
+        const confirmPassword = this.signInForm.get('confirmPassword')?.value;
+        this.passwordsDoNotMatch = password !== confirmPassword;
     }
 
     onSubmit(): void {
@@ -57,17 +70,22 @@ export class SignInComponent implements OnInit {
             };
             this.authService.login(loginModel).subscribe({
                 next: (response) => {
-                    // Store the token and user data
+                    console.log('Login successful', response);
                     localStorage.setItem('token', response.token);
-                    // You might want to store user information as well
-                    this.router.navigate(['/dashboard']);
+                    localStorage.setItem('userData', JSON.stringify(response.userData));
+                    this.router.navigate(['/dashboard']).then(() => {
+                        console.log('Navigation to dashboard attempted');
+                    }).catch(err => {
+                        console.error('Navigation error', err);
+                    });
                 },
                 error: (error) => {
                     console.error('Login failed', error);
-                    this.errorMessage = error.error.message || 'Invalid username or password';
+                    this.errorMessage = error.error?.message || 'Invalid username or password';
                 }
             });
         } else {
+            console.log('Form is invalid');
             this.validatePassword();
         }
     }

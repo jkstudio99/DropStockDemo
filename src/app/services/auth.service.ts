@@ -17,8 +17,7 @@ export class AuthService {
   register(registerModel: RegisterModel): Observable<any> {
     return this.http.post(`${this.apiUrl}/authentication/register-user`, registerModel).pipe(
       map((response: any) => {
-        if (response.token) {
-          localStorage.setItem('token', response.token);
+        if (response.status === 'Success') {
           return { status: 'Success', message: 'Registration successful' };
         } else {
           return { status: 'Error', message: 'Registration failed' };
@@ -58,7 +57,8 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    return !!token;
   }
 
   forgotPassword(email: string): Observable<any> {

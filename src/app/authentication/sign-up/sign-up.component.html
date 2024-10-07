@@ -41,16 +41,17 @@
                   <i [ngClass]="isPasswordVisible ? 'ri-eye-line' : 'ri-eye-off-line'"></i>
                 </button>
               </div>
-              <div *ngIf="passwordErrors.length > 0" class="text-danger mt-2">
-                <ul>
-                  <li *ngFor="let error of passwordErrors">{{ error }}</li>
-                </ul>
+              <div *ngIf="passwordErrors.length > 0" class="mt-2">
+                <div *ngFor="let error of passwordErrors" class="text-danger">{{ error }}</div>
               </div>
-              <div class="form-group">
+              <div class="form-group position-relative">
                 <label class="main-label d-block fw-medium text-black">Confirm Password</label>
-                <input type="password" formControlName="confirmPassword" class="form-control" placeholder="Confirm your password">
+                <input [type]="isConfirmPasswordVisible ? 'text' : 'password'" formControlName="confirmPassword" class="form-control" placeholder="Confirm your password">
+                <button type="button" (click)="toggleConfirmPasswordVisibility()" class="icon-button p-0 border-0 bg-transparent">
+            
+                </button>
                 <div *ngIf="signUpForm.errors?.['mismatch'] && signUpForm.get('confirmPassword')?.touched" class="error-message">
-                  Passwords do not match
+                  <div class="text-danger">Passwords do not match</div>
                 </div>
               </div>
               <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius" [disabled]="!signUpForm.valid || isLoading">
@@ -69,4 +70,3 @@
       </div>
     </div>
   </div>
-  

@@ -346,3 +346,7 @@
     padding-right: 120px;
   }
 }/*# sourceMappingURL=sign-in.component.css.map */
+
+.password-mismatch {
+  color: red;
+}

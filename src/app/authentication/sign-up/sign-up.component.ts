@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -6,6 +6,8 @@ import { ValidationService } from '../../services/validation.service';
 import { RegisterModel } from '../../models/RegisterModel';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sign-up',
@@ -18,13 +20,15 @@ import { CommonModule } from '@angular/common';
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.scss']
 })
-export class SignUpComponent implements OnInit {
+export class SignUpComponent implements OnInit, OnDestroy {
   signUpForm: FormGroup;
   isPasswordVisible: boolean = false;
   isConfirmPasswordVisible: boolean = false;
   errorMessage: string = '';
   passwordErrors: string[] = [];
   isLoading: boolean = false;
+
+  private unsubscribe$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -35,16 +39,28 @@ export class SignUpComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.initForm();
+    this.subscribeToPasswordChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+
+  private initForm(): void {
     this.signUpForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, this.validationService.passwordValidator()]],
       confirmPassword: ['', Validators.required]
     }, { validator: this.passwordMatchValidator });
+  }
 
-    this.signUpForm.get('password')?.valueChanges.subscribe(() => {
-      this.validatePassword();
-    });
+  private subscribeToPasswordChanges(): void {
+    this.signUpForm.get('password')?.valueChanges
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(() => this.validatePassword());
   }
 
   passwordMatchValidator(g: FormGroup) {
@@ -66,40 +82,41 @@ export class SignUpComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.signUpForm.valid) {
-      this.isLoading = true;
-
-      const registerModel: RegisterModel = {
-        username: this.signUpForm.get('username')?.value,
-        email: this.signUpForm.get('email')?.value,
-        password: this.signUpForm.get('password')?.value
-      };
-
-      const validationResult = this.validationService.validateRegisterModel(registerModel);
-      if (!validationResult.isValid) {
-        this.errorMessage = validationResult.errors.join(', ');
-        this.isLoading = false;
-        return;
-      }
-
-      this.authService.register(registerModel).subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          if (response.status === 'Success') {
-            // Navigate to sign-in page after successful registration
-            this.router.navigate(['/authentication/sign-in']);
-          } else {
-            this.errorMessage = response.message;
-          }
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.errorMessage = error.error.message || 'Registration failed. Please try again.';
-        }
-      });
-    } else {
+    if (this.signUpForm.invalid) {
+      this.signUpForm.markAllAsTouched();
       this.validatePassword();
+      return;
     }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    const registerModel: RegisterModel = {
+      username: this.signUpForm.get('username')?.value,
+      email: this.signUpForm.get('email')?.value,
+      password: this.signUpForm.get('password')?.value
+    };
+
+    this.authService.register(registerModel)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: this.handleRegisterSuccess.bind(this),
+        error: this.handleRegisterError.bind(this),
+        complete: () => this.isLoading = false
+      });
+  }
+
+  private handleRegisterSuccess(response: any): void {
+    console.log('Registration successful', response);
+    this.router.navigate(['/authentication/sign-in'])
+      .then(() => console.log('Navigation to sign-in successful'))
+      .catch(err => console.error('Navigation error', err));
+  }
+
+  private handleRegisterError(error: any): void {
+    console.error('Registration failed', error);
+    this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
+    this.isLoading = false;
   }
 
   navigateToSignIn() {

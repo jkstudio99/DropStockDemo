@@ -16,33 +16,16 @@
             <div class="col-lg-6 col-md-12 order-1 order-lg-2">
                 <div class="form-content">
                     <div class="logo">
-                        <img src="images/logo-big.svg" alt="logo">
-                        <img src="images/white-logo-big.svg" class="d-none" alt="logo">
+                        <img src="images/logo-big.svg" alt="logo" class="img-fluid w-50">
+                        <img src="images/white-logo-big.svg" class="d-none img-fluid w-50" alt="logo">
                     </div>
                     <div class="title">
                         <h1 class="fw-semibold">
-                            Welcome back to DropStock!
+                            ยินดีต้อนรับสู่ DropStock!
                         </h1>
                         <p class="fw-medium">
-                            Sign In with social account or enter your details
+                            ลงชื่อเข้าใช้บัญชีของคุณ
                         </p>
-                    </div>
-                    <div class="with-socials d-flex align-items-center justify-content-between">
-                        <div>
-                            <button type="button" class="d-block w-100 border-radius transition">
-                                <img src="images/icons/google.svg" alt="google">
-                            </button>
-                        </div>
-                        <div>
-                            <button type="button" class="d-block w-100 border-radius transition">
-                                <img src="images/icons/facebook2.svg" alt="facebook">
-                            </button>
-                        </div>
-                        <div>
-                            <button type="button" class="d-block w-100 border-radius transition">
-                                <img src="images/icons/apple.svg" alt="apple">
-                            </button>
-                        </div>
                     </div>
                     <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
                         <div class="form-group">
@@ -73,12 +56,17 @@
                                 Forgot Password?
                             </a>
                         </div>
-                        <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius">
+                        <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+                            {{ errorMessage }}
+                        </div>
+                        <button type="submit" class="btn-box d-block w-100 border-0 transition fw-medium border-radius" [disabled]="isLoading">
                             <span class="d-flex align-items-center justify-content-center">
-                                <i class="material-symbols-outlined">
+                                <i class="material-symbols-outlined" *ngIf="!isLoading">
                                     login
                                 </i>
-                                Sign In
+                                <span *ngIf="!isLoading">Sign In</span>
+                                <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span *ngIf="isLoading" class="ms-2">Loading...</span>
                             </span>
                         </button>
                         <p class="info mt-3 text-center">

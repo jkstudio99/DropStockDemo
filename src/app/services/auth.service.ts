@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { RegisterModel } from '../models/RegisterModel';
@@ -20,12 +20,9 @@ export class AuthService {
 
   register(registerModel: RegisterModel): Observable<any> {
     return this.http.post(`${this.apiUrl}/authentication/register-user`, registerModel).pipe(
-      map((response: any) => {
-        if (response.status === 'Success') {
-          return { status: 'Success', message: 'Registration successful' };
-        } else {
-          return { status: 'Error', message: 'Registration failed' };
-        }
+      catchError(error => {
+        console.error('Registration error', error);
+        return throwError(() => new Error(error.error?.message || 'Registration failed'));
       })
     );
   }
@@ -35,8 +32,12 @@ export class AuthService {
       tap((response: TokenResponse) => {
         localStorage.setItem('token', response.token);
         localStorage.setItem('refreshToken', response.refreshToken);
-        // You might want to store user information as well
         localStorage.setItem('userData', JSON.stringify(response.userData));
+        this.loggedIn.next(true);
+      }),
+      catchError(error => {
+        console.error('Login error', error);
+        return throwError(() => new Error(error.error?.message || 'Login failed'));
       })
     );
   }

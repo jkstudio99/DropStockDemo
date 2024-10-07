@@ -1,4 +1,8 @@
 import {
+  Calendar,
+  CustomRenderingStore
+} from "./chunk-UKISXIEK.js";
+import {
   CommonModule,
   NgClass,
   NgForOf,
@@ -6,10 +10,6 @@ import {
   NgStyle,
   NgTemplateOutlet
 } from "./chunk-5KV5DZWS.js";
-import {
-  Calendar,
-  CustomRenderingStore
-} from "./chunk-UKISXIEK.js";
 import {
   ChangeDetectorRef,
   Component,

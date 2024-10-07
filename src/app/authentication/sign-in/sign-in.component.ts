@@ -51,6 +51,7 @@ export class SignInComponent implements OnInit, OnDestroy {
         }
 
         this.isLoading = true;
+        this.errorMessage = '';
         const { username, password } = this.signInForm.value;
 
         this.authService.login({ username, password })
@@ -105,7 +106,7 @@ export class SignInComponent implements OnInit, OnDestroy {
 
     private handleLoginError(error: any): void {
         console.error('Login failed', error);
-        this.errorMessage = error.error?.message || 'Invalid username or password';
+        this.errorMessage = 'Invalid username or password. Please try again.';
         this.isLoading = false;
     }
 }

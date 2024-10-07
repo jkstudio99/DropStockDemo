@@ -1,6 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto Sans Thai:wght@400;500;600;700&display=swap');
+
 :root {
-    --fontFamily: "Inter", sans-serif;
+    --fontFamily: "Inter", "Noto Sans Thai", sans-serif;
     --blackColor: #3A4252;
     --whiteColor: #ffffff;
     --bodyColor: #64748B;
@@ -8,7 +9,7 @@
     --transition: .5s;
     --fontSize: 14px;
     --primaryColor: #001EE0;
-    --secondaryColor: #012657;
+    --secondaryColor: #0018B3;
     --successColor: #25B003;
     --dangerColor: #FF4023;
     --warningColor: #ffc107;
@@ -27,6 +28,9 @@ body {
         size: var(--fontSize);
         family: var(--fontFamily);
     };
+    *:lang(th) {
+        font-family: "Noto Sans Thai", sans-serif;
+    }
 }
 a {
     transition: var(--transition);

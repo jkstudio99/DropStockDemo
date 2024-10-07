@@ -21,6 +21,7 @@ import { CommonModule } from '@angular/common';
 export class SignUpComponent implements OnInit {
   signUpForm: FormGroup;
   isPasswordVisible: boolean = false;
+  isConfirmPasswordVisible: boolean = false;
   errorMessage: string = '';
   passwordErrors: string[] = [];
   isLoading: boolean = false;
@@ -60,6 +61,10 @@ export class SignUpComponent implements OnInit {
     this.isPasswordVisible = !this.isPasswordVisible;
   }
 
+  toggleConfirmPasswordVisibility(): void {
+    this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
+  }
+
   onSubmit(): void {
     if (this.signUpForm.valid) {
       this.isLoading = true;
@@ -81,7 +86,8 @@ export class SignUpComponent implements OnInit {
         next: (response) => {
           this.isLoading = false;
           if (response.status === 'Success') {
-            this.router.navigate(['/dashboard']);
+            // Navigate to sign-in page after successful registration
+            this.router.navigate(['/authentication/sign-in']);
           } else {
             this.errorMessage = response.message;
           }

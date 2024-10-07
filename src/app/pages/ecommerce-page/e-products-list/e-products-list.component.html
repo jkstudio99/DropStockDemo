@@ -1,56 +1,71 @@
-<div class="basic-table table-responsive">
-    <table class="table mb-0">
-        <thead>
-            <tr>
-                <th scope="col" class="fw-medium"> ID </th>
-                <th scope="col" class="fw-medium"> Product </th>
-                <th scope="col" class="fw-medium"> Category </th>
-                <th scope="col" class="fw-medium"> Price </th>
-                <th scope="col" class="fw-medium"> Order </th>
-                <th scope="col" class="fw-medium"> Stock </th>
-                <th scope="col" class="fw-medium"> Amount </th>
-                <th scope="col" class="fw-medium"> Rating </th>
-                <th scope="col" class="fw-medium"> Status </th>
-                <th scope="col" class="fw-medium"> Action </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let product of products">
-                <td class="text-body"> #{{product.productid}} </td>
-                <td>
-                    <div class="product-info d-flex align-items-center">
-                        <div class="image">
-                            <img [src]="product.productpicture" [alt]="product.productname">
+<div class="trezo-card-content">
+    <div class="basic-table table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th scope="col" class="fw-medium"> ID </th>
+                    <th scope="col" class="fw-medium"> Product </th>
+                    <th scope="col" class="fw-medium"> Category </th>
+                    <th scope="col" class="fw-medium"> Price </th>
+                    <th scope="col" class="fw-medium"> Order </th>
+                    <th scope="col" class="fw-medium"> Stock </th>
+                    <th scope="col" class="fw-medium"> Amount </th>
+                    <th scope="col" class="fw-medium"> Action </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let product of products">
+                    <td class="text-body"> #{{product.productid}} </td>
+                    <td>
+                        <div class="product-info d-flex align-items-center">
+                            <div class="image">
+                                <img [src]="product.productpicture" [alt]="product.productname">
+                            </div>
+                            <div class="info">
+                                <a [routerLink]="['/dashboard/ecommerce-page/product-details', product.productid]" class="fw-medium d-inline-block"> {{product.productname}} </a>
+                                <span class="d-block text-body"> {{product.createddate | date:'dd MMM yyyy'}} </span>
+                            </div>
                         </div>
-                        <div class="info">
-                            <a [routerLink]="['/dashboard/ecommerce-page/product-details', product.productid]" class="fw-medium d-inline-block"> {{product.productname}} </a>
-                            <span class="d-block text-body"> {{product.createddate | date:'dd MMM yyyy'}} </span>
+                    </td>
+                    <td> {{product.categoryname}} </td>
+                    <td> {{product.unitprice | currency}} </td>
+                    <td> {{product.unitinstock}} </td>
+                    <td>
+                        <span class="d-block" [class.stock-out]="product.unitinstock === 0"> {{product.unitinstock}} </span>
+                    </td>
+                    <td> {{product.unitinstock * product.unitprice | currency}} </td>
+                    <td>
+                        <span class="trezo-badge" [class.cancelled]="product.unitinstock === 0"> {{product.unitinstock === 0 ? 'Draft' : 'Published'}} </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons d-flex align-items-center">
+                            <a [routerLink]="['/dashboard/ecommerce-page/product-details', product.productid]" class="p-0 bg-transparent d-inline-block lh-1 border-0">
+                                <i class="material-symbols-outlined"> visibility </i>
+                            </a>
+                            <a [routerLink]="['/dashboard/ecommerce-page/edit-product', product.productid]" class="p-0 bg-transparent d-inline-block lh-1 border-0">
+                                <i class="material-symbols-outlined"> edit </i>
+                            </a>
+                            <button type="button" class="p-0 bg-transparent d-inline-block lh-1 border-0" (click)="deleteProduct(product.productid!)">
+                                <i class="material-symbols-outlined"> delete </i>
+                            </button>
                         </div>
-                    </div>
-                </td>
-                <td> {{product.categoryname}} </td>
-                <td> {{product.unitprice | currency}} </td>
-                <td> {{product.unitinstock}} </td>
-                <td>
-                    <span class="d-block" [class.stock-out]="product.unitinstock === 0"> {{product.unitinstock}} </span>
-                </td>
-                <td> {{product.unitinstock * product.unitprice | currency}} </td>                <td>
-                    <span class="trezo-badge" [class.cancelled]="product.unitinstock === 0"> {{product.unitinstock}} </span>
-                </td>
-                <td>
-                    <div class="action-buttons d-flex align-items-center">
-                        <a [routerLink]="['/dashboard/ecommerce-page/product-details', product.productid]" class="p-0 bg-transparent d-inline-block lh-1 border-0">
-                            <i class="material-symbols-outlined"> visibility </i>
-                        </a>
-                        <a [routerLink]="['/dashboard/ecommerce-page/edit-product', product.productid]" class="p-0 bg-transparent d-inline-block lh-1 border-0">
-                            <i class="material-symbols-outlined"> edit </i>
-                        </a>
-                        <button type="button" class="p-0 bg-transparent d-inline-block lh-1 border-0" (click)="deleteProduct(product.productid!)">
-                            <i class="material-symbols-outlined"> delete </i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="trezo-card-pagination">
+        <div class="d-md-flex align-items-center justify-content-between">
+            <p class="mb-0">
+                Showing {{products.length}} of {{totalProducts}} results
+            </p>
+            <ol class="list-unstyled mb-0 p-0">
+                <li class="d-inline-block" *ngFor="let page of getPaginationArray(); let i = index">
+                    <a [class.active]="currentPage === i + 1" (click)="loadPage(i + 1)">
+                        {{i + 1}}
+                    </a>
+                </li>
+            </ol>
+        </div>
+    </div>
 </div>
